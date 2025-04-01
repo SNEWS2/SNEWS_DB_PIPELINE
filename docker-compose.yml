@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: yourdatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  snews_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://youruser:yourpassword@db:5432/yourdatabase
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+
+volumes:
+  postgres_data:
