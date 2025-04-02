@@ -1,8 +1,11 @@
 import os
 import logging
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import Base
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -58,17 +61,21 @@ class DatabaseConnector:
 if __name__ == "__main__":
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:
-        print("DATABASE_URL environment variable not set.")
-    else:
-        db_connector = DatabaseConnector(db_url)
-        # To create tables using SQLAlchemy models:
-        db_connector.create_all_tables()
+        raise ValueError("DATABASE_URL environment variable not set")
 
-        # To execute SQL from a file:
-        # try:
-        #     db_connector.execute_sql_from_file("snews_db/database/initialization/init_db.sql")
-        # except FileNotFoundError:
-        #     print("Initialization SQL file not found.")
-        # except Exception as e:
-        #     print(f"Error during database initialization: {e}")
-        pass # Keep the instantiation but avoid immediate execution in __main__ for better separation
+    db_connector = DatabaseConnector(db_url)
+    print(db_connector.engine)
+    print(db_connector.SessionLocal)
+    # db_connector.create_all_tables()
+
+    # query = text("SELECT * FROM all_mgs")
+    # check = db_connector.execute_query(query)
+    # print(check)
+    # To execute SQL from a file:
+    # try:
+    #     db_connector.execute_sql_from_file("snews_db/database/initialization/init_db.sql")
+    # except FileNotFoundError:
+    #     print("Initialization SQL file not found.")
+    # except Exception as e:
+    #     print(f"Error during database initialization: {e}")
+    print('table(s) created')

@@ -1,25 +1,13 @@
 services:
-  db:
-    image: postgres:17.4
-    environment:
-      POSTGRES_USER: youruser
-      POSTGRES_PASSWORD: yourpassword
-      POSTGRES_DB: yourdatabase
+  snews_pg:
+    image: postgres:17
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  snews_app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      DATABASE_URL: postgres://youruser:yourpassword@db:5432/yourdatabase
-    depends_on:
-      - db
-    ports:
-      - "8000:80"
+      - ./snews_db/database/initialization:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:
