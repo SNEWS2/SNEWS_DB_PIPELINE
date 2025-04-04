@@ -3,8 +3,10 @@ services:
     image: postgres:17
     ports:
       - "5432:5432"
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_USER=snews
+      - POSTGRES_PASSWORD=snews
+      - POSTGRES_DB=snews_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./snews_db/database/initialization:/docker-entrypoint-initdb.d
