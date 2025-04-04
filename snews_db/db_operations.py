@@ -8,7 +8,6 @@ from .database.models import (
     CachedHeartbeats,
 )
 
-
 def add_all_message(
     session: Session,
     message_id: str,
