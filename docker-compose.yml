@@ -2,14 +2,15 @@ services:
   snews_pg:
     image: postgres:17
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
-      - POSTGRES_USER=snews
-      - POSTGRES_PASSWORD=snews
-      - POSTGRES_DB=snews_db
+        - POSTGRES_USER=user
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_DB=snews_pg
+#    env_file:
+#      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./snews_db/database/initialization:/docker-entrypoint-initdb.d
-
+#      - ./snews_db/database/initialization/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
 volumes:
   postgres_data:

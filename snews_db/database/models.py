@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 class AllMessages(Base):
-    __tablename__ = 'all_mgs'
+    __tablename__ = "all_mgs"
 
     id = Column(Integer, Identity(), primary_key=True)
     message_id = Column(String)
@@ -23,8 +23,9 @@ class AllMessages(Base):
             f"message_type='{self.message_type}')>"
         )
 
+
 class SigTierArchive(Base):
-    __tablename__ = 'sig_tier_archive'
+    __tablename__ = "sig_tier_archive"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
@@ -47,7 +48,7 @@ class SigTierArchive(Base):
 
 
 class TimeTierArchive(Base):
-    __tablename__ = 'time_tier_archive'
+    __tablename__ = "time_tier_archive"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
@@ -70,7 +71,7 @@ class TimeTierArchive(Base):
 
 
 class CoincidenceTierArchive(Base):
-    __tablename__ = 'coincidence_tier_archive'
+    __tablename__ = "coincidence_tier_archive"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
@@ -92,7 +93,7 @@ class CoincidenceTierArchive(Base):
 
 
 class CoincidenceTierAlerts(Base):
-    __tablename__ = 'coincidence_tier_alerts'
+    __tablename__ = "coincidence_tier_alerts"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
@@ -115,7 +116,7 @@ class CoincidenceTierAlerts(Base):
 
 
 class CachedHeartbeats(Base):
-    __tablename__ = 'cached_heartbeats'
+    __tablename__ = "cached_heartbeats"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     received_time_utc = Column(DateTime)
@@ -135,6 +136,7 @@ class CachedHeartbeats(Base):
 
 def create_db_engine(database_url):
     return create_engine(database_url)
+
 
 def create_session(engine):
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
