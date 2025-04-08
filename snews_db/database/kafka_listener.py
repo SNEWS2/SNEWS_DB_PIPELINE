@@ -16,6 +16,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import Base, AllMessages
 from snews_db.db_operations import add_all_message
+from dotenv import load_dotenv
+load_dotenv()
 
 class DBKafkaListener:
     def __init__(self):
@@ -26,16 +28,16 @@ class DBKafkaListener:
     def run_db_listener(self):
         self.retriable_error_count = 0
         while True:
-            db_engine = create_engine(self.database_url)
-
             # create db session
+            db_engine = create_engine(self.database_url, echo=True)
             SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db_engine)
-            session = SessionLocal()
-            stream = Stream(self.observation_topic)
+            Base.metadata.create_all(bind=db_engine)
+
+            stream = Stream(until_eos=False)
             try:
                 with stream.open(self.observation_topic, "r") as s:
                     click.secho(
-                        f"{datetime.utcnow().isoformat()} (re)Initializing Coincidence System for "
+                        f"{datetime.utcnow().isoformat()} (re)Initializing Database Listener System for "
                         f"{self.observation_topic}\n"
                     )
                     for snews_message in s:
@@ -54,13 +56,12 @@ class DBKafkaListener:
                             continue
 
                         # write the message to postgre database
-                        add_all_message(session, "msg1", "2023-01-01T00:00:00Z", "type1", "This is a test message", "2023-01-02T00:00:00Z")
+                        with SessionLocal() as session:
+                            add_all_message(session, "msg1", "2023-01-01T00:00:00Z", "type1", "This is a test message", "2023-01-02T00:00:00Z")
 
             except KeyboardInterrupt:
-                session.close()
                 sys.exit(0)
             except adc.errors.KafkaException as e:
-                session.close() 
                 if e.retriable:
                     self.retriable_error_count += 1
                     if self.retriable_error_count > 10:
