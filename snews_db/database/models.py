@@ -23,21 +23,20 @@ class AllMessages(Base):
             f"message_type='{self.message_type}')>"
         )
 
-
 class SigTierArchive(Base):
     __tablename__ = "sig_tier_archive"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
-    schema_version = Column(Float)
+    message_uuid = Column(String)
+    received_time_utc = Column(DateTime)
     detector_name = Column(String)
-    p_vals = Column(String)
+    machine_time_utc = Column(String)
+    neutrino_time_utc = Column(String)
+    p_val = Column(Float)
+    p_values = Column(String)
     t_bin_width_sec = Column(Float)
     is_test = Column(Integer)
-    sent_time_utc = Column(String)
-    machine_time_utc = Column(String)
-    meta = Column(String)
-    expiration = Column(String)
 
     def __repr__(self):
         return (
@@ -52,15 +51,13 @@ class TimeTierArchive(Base):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
-    schema_version = Column(Float)
+    message_uuid = Column(String)
+    received_time_utc = Column(DateTime)
     detector_name = Column(String)
-    p_val = Column(Float)
-    t_bin_width_sec = Column(Float)
-    timing_series = Column(String)
-    sent_time_utc = Column(String)
     machine_time_utc = Column(String)
-    meta = Column(String)
-    expiration = Column(String)
+    neutrino_time_utc = Column(String)
+    timing_series = Column(String)
+    is_test = Column(Integer)
 
     def __repr__(self):
         return (
@@ -75,14 +72,14 @@ class CoincidenceTierArchive(Base):
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     message_id = Column(String)
-    schema_version = Column(Float)
+    message_uuid = Column(String)
+    received_time_utc = Column(DateTime)
     detector_name = Column(String)
-    p_val = Column(Float)
-    neutrino_time_utc = Column(String)
-    sent_time_utc = Column(String)
     machine_time_utc = Column(String)
-    meta = Column(String)
-    expiration = Column(String)
+    neutrino_time_utc = Column(String)
+    p_val = Column(Float)
+    is_test = Column(Integer)
+    is_firedrill = Column(Integer)
 
     def __repr__(self):
         return (
@@ -92,47 +89,63 @@ class CoincidenceTierArchive(Base):
         )
 
 
-class CoincidenceTierAlerts(Base):
-    __tablename__ = "coincidence_tier_alerts"
+# class CoincidenceTierAlerts(Base):
+#     __tablename__ = "coincidence_tier_alerts"
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    message_id = Column(String)
-    alert_type = Column(String)
-    server_tag = Column(String)
-    false_alarm_prob = Column(String)
-    detector_names = Column(String)
-    sent_time_utc = Column(String)
-    p_vals = Column(String)
-    neutrino_times = Column(String)
-    p_vals_average = Column(String)
-    sub_list_number = Column(Integer)
+#     id = Column(Integer, autoincrement=True, primary_key=True)
+#     message_id = Column(String)
+#     alert_type = Column(String)
+#     server_tag = Column(String)
+#     false_alarm_prob = Column(String)
+#     detector_names = Column(String)
+#     sent_time_utc = Column(String)
+#     p_vals = Column(String)
+#     neutrino_times = Column(String)
+#     p_vals_average = Column(String)
+#     sub_list_number = Column(Integer)
 
-    def __repr__(self):
-        return (
-            f"<CoincidenceTierAlerts(alert_type='{self.alert_type}', "
-            f"server_tag='{self.server_tag}', "
-            f"sent_time_utc='{self.sent_time_utc}')>"
-        )
+#     def __repr__(self):
+#         return (
+#             f"<CoincidenceTierAlerts(alert_type='{self.alert_type}', "
+#             f"server_tag='{self.server_tag}', "
+#             f"sent_time_utc='{self.sent_time_utc}')>"
+#         )
 
 
 class CachedHeartbeats(Base):
     __tablename__ = "cached_heartbeats"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
+    message_id = Column(String)
+    message_uuid = Column(String)
     received_time_utc = Column(DateTime)
-    detector = Column(String)
-    stamped_time_utc = Column(DateTime)
-    latency = Column(BigInteger)
-    time_after_last = Column(BigInteger)
-    status = Column(String)
+    machine_time = Column(DateTime)
+    detector_name = Column(String)
+    detector_status = Column(String)
+    is_test = Column(Integer)
 
     def __repr__(self):
         return (
-            f"<CachedHeartbeats(detector='{self.detector}', "
-            f"received_time_utc='{self.received_time_utc}', "
-            f"status='{self.status}')>"
+            f"<CachedHeartbeats(detector='{self.detector_name}', "
+            f"received_time_utc='{self.received_time_utc}'"
         )
 
+class RetractionTierArchive(Base):
+    __tablename__ = "retraction_tier_archive"
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    message_id = Column(String)
+    message_uuid = Column(String)
+    received_time_utc = Column(DateTime)
+    detector_name = Column(String)
+    machine_time_utc = Column(String)
+    detector_status = Column(String)
+    is_test = Column(Integer)
+
+    def __repr__(self):
+        return (
+            f"<RetractionTierArchive(detector='{self.detector_name}', "
+            f"received_time_utc='{self.received_time_utc}'"
+        )
 
 def create_db_engine(database_url):
     return create_engine(database_url)

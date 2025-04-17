@@ -4,10 +4,13 @@ from .database.models import (
     SigTierArchive,
     TimeTierArchive,
     CoincidenceTierArchive,
-    CoincidenceTierAlerts,
+    # CoincidenceTierAlerts, # Assuming this is still commented out or removed
     CachedHeartbeats,
+    RetractionTierArchive, # Added import if needed
 )
+from datetime import datetime # Added import for type hinting if needed
 
+# --- AllMessages ---
 def add_all_message(
     session: Session,
     message_id: str,
@@ -16,6 +19,7 @@ def add_all_message(
     message: str,
     expiration: str,
 ):
+    """Adds a generic message entry."""
     new_message = AllMessages(
         message_id=message_id,
         received_time=received_time,
@@ -27,133 +31,139 @@ def add_all_message(
     session.commit()
     return new_message
 
-
+# --- SigTierArchive ---
 def add_sig_tier_archive(
     session: Session,
     message_id: str,
-    schema_version: float,
+    message_uuid: str,
+    received_time_utc: datetime,
     detector_name: str,
-    p_vals: str,
+    machine_time_utc: str,
+    neutrino_time_utc: str,
+    p_val: float,
+    p_values: str, # Assuming this is a JSON string or similar representation
     t_bin_width_sec: float,
     is_test: int,
-    sent_time_utc: str,
-    machine_time_utc: str,
-    meta: str,
-    expiration: str,
 ):
-    new_sig_tier = SigTierArchive(
+    """Adds a Significance Tier message archive entry."""
+    new_entry = SigTierArchive(
         message_id=message_id,
-        schema_version=schema_version,
+        message_uuid=message_uuid,
+        received_time_utc=received_time_utc,
         detector_name=detector_name,
-        p_vals=p_vals,
+        machine_time_utc=machine_time_utc,
+        neutrino_time_utc=neutrino_time_utc,
+        p_val=p_val,
+        p_values=p_values,
         t_bin_width_sec=t_bin_width_sec,
         is_test=is_test,
-        sent_time_utc=sent_time_utc,
-        machine_time_utc=machine_time_utc,
-        meta=meta,
-        expiration=expiration,
     )
-    session.add(new_sig_tier)
+    session.add(new_entry)
     session.commit()
-    return new_sig_tier
+    return new_entry
 
-
+# --- TimeTierArchive ---
 def add_time_tier_archive(
     session: Session,
     message_id: str,
-    schema_version: float,
+    message_uuid: str,
+    received_time_utc: datetime,
     detector_name: str,
-    p_val: float,
-    t_bin_width_sec: float,
-    timing_series: str,
-    sent_time_utc: str,
     machine_time_utc: str,
-    meta: str,
-    expiration: str,
+    neutrino_time_utc: str,
+    timing_series: str, # Assuming this is a JSON string or similar representation
+    is_test: int,
 ):
-    new_time_tier = TimeTierArchive(
+    """Adds a Timing Tier message archive entry."""
+    new_entry = TimeTierArchive(
         message_id=message_id,
-        schema_version=schema_version,
+        message_uuid=message_uuid,
+        received_time_utc=received_time_utc,
         detector_name=detector_name,
-        p_val=p_val,
-        t_bin_width_sec=t_bin_width_sec,
-        timing_series=timing_series,
-        sent_time_utc=sent_time_utc,
         machine_time_utc=machine_time_utc,
-        meta=meta,
-        expiration=expiration,
+        neutrino_time_utc=neutrino_time_utc,
+        timing_series=timing_series,
+        is_test=is_test,
     )
-    session.add(new_time_tier)
+    session.add(new_entry)
     session.commit()
-    return new_time_tier
+    return new_entry
 
-
+# --- CoincidenceTierArchive ---
 def add_coincidence_tier_archive(
     session: Session,
     message_id: str,
-    schema_version: float,
+    message_uuid: str,
+    received_time_utc: datetime,
     detector_name: str,
-    p_val: float,
-    t_bin_width_sec: float,
-    timing_series: str,
-    sent_time_utc: str,
     machine_time_utc: str,
-    meta: str,
-    expiration: str,
+    neutrino_time_utc: str,
+    p_val: float,
+    is_test: int,
+    is_firedrill: int,
 ):
-
-    new_coincidence_tier = CoincidenceTierArchive(
+    """Adds a Coincidence Tier message archive entry."""
+    new_entry = CoincidenceTierArchive(
         message_id=message_id,
-        schema_version=schema_version,
+        message_uuid=message_uuid,
+        received_time_utc=received_time_utc,
         detector_name=detector_name,
-        p_val=p_val,
-        t_bin_width_sec=t_bin_width_sec,
-        timing_series=timing_series,
-        sent_time_utc=sent_time_utc,
         machine_time_utc=machine_time_utc,
-        meta=meta,
-        expiration=expiration,
+        neutrino_time_utc=neutrino_time_utc,
+        p_val=p_val,
+        is_test=is_test,
+        is_firedrill=is_firedrill,
     )
-    session.add(new_coincidence_tier)
+    session.add(new_entry)
     session.commit()
-    return new_coincidence_tier
+    return new_entry
 
-
-def add_coincidence_tier_alerts(
+# --- CachedHeartbeats ---
+def add_cached_heartbeats(
     session: Session,
     message_id: str,
-    schema_version: float,
+    message_uuid: str,
+    received_time_utc: datetime,
+    machine_time_utc: datetime,
     detector_name: str,
-    p_val: float,
-    sent_time_utc: str,
-    machine_time_utc: str,
-    meta: str,
-    expiration: str,
+    detector_status: str,
+    is_test: int,
 ):
-    new_coincidence_tier_alert = CoincidenceTierAlerts(
+    """Adds a Cached Heartbeat entry."""
+    new_entry = CachedHeartbeats(
         message_id=message_id,
-        schema_version=schema_version,
+        message_uuid=message_uuid,
+        received_time_utc=received_time_utc,
+        machine_time=machine_time_utc,
         detector_name=detector_name,
-        p_val=p_val,
-        sent_time_utc=sent_time_utc,
-        machine_time_utc=machine_time_utc,
-        meta=meta,
-        expiration=expiration,
+        detector_status=detector_status,
+        is_test=is_test,
     )
-    session.add(new_coincidence_tier_alert)
+    session.add(new_entry)
     session.commit()
-    return new_coincidence_tier_alert
+    return new_entry
 
-
-def add_cached_heartbeats(
-    session: Session, detector_name: str, sent_time_utc: str, machine_time_utc: str, meta: str
+# --- RetractionTierArchive ---
+def add_retraction_tier_archive(
+    session: Session,
+    message_id: str,
+    message_uuid: str,
+    received_time_utc: datetime,
+    detector_name: str,
+    machine_time_utc: str,
+    detector_status: str,
+    is_test: int,
 ):
-    new_cached_heartbeat = CachedHeartbeats(
+    """Adds a Retraction Tier message archive entry."""
+    new_entry = RetractionTierArchive(
+        message_id=message_id,
+        message_uuid=message_uuid,
+        received_time_utc=received_time_utc,
         detector_name=detector_name,
-        sent_time_utc=sent_time_utc,
         machine_time_utc=machine_time_utc,
-        meta=meta,
+        detector_status=detector_status,
+        is_test=is_test,
     )
-    session.add(new_cached_heartbeat)
+    session.add(new_entry)
     session.commit()
-    return new_cached_heartbeat
+    return new_entry
