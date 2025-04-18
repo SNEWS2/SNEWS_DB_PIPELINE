@@ -15,7 +15,7 @@ from hop import Stream
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import Base, AllMessages
-from snews_db.db_operations import add_all_message, add_sig_tier_archive, add_time_tier_archive, add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive 
+from snews_db.db_operations import add_sig_tier_archive, add_time_tier_archive, add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive 
 from snews.models.messages import Tier
 from dotenv import load_dotenv
 load_dotenv()
@@ -33,6 +33,12 @@ class DBKafkaListener:
             return snews_message["machine_time_utc"]
         else:
             raise Exception("No machine time key found in message")
+    
+    def get_p_val(self, snews_message):
+        if snews_message["p_val"] is not None:
+            return float(snews_message["p_val"])
+        else:
+            return None
 
     def run_db_listener(self):
         self.retriable_error_count = 0
@@ -71,6 +77,7 @@ class DBKafkaListener:
                             # sort by different types of messages
                             message_tier = snews_message['tier']
                             received_time = str(datetime.now(timezone.utc))
+                            print(snews_message)
                             if message_tier == Tier.COINCIDENCE_TIER:
                                 print("Adding coincidence archive")
                                 print(snews_message.keys())
@@ -81,7 +88,7 @@ class DBKafkaListener:
                                                              detector_name=snews_message["detector_name"],
                                                              machine_time_utc=self.get_machine_time(snews_message),
                                                              neutrino_time_utc=snews_message["neutrino_time_utc"],
-                                                             p_val=float(snews_message["p_val"]),
+                                                             p_val=self.get_p_val(snews_message),
                                                              is_test=int(snews_message["is_test"]),
                                                              is_firedrill=int(snews_message["is_firedrill"]))
 
@@ -95,7 +102,7 @@ class DBKafkaListener:
                                                      detector_name=snews_message["detector_name"],
                                                      machine_time_utc=self.get_machine_time(snews_message),
                                                      neutrino_time_utc=snews_message["neutrino_time_utc"],
-                                                     p_val=snews_message["p_val"],
+                                                     p_val=self.get_p_val(snews_message),
                                                      p_values=snews_message["p_values"],
                                                      t_bin_width_sec=float(snews_message["t_bin_width"]),
                                                      is_test=int(snews_message["is_test"]))
@@ -127,7 +134,6 @@ class DBKafkaListener:
                             elif message_tier == Tier.TIMING_TIER:
                                 print("Adding timing archive")
                                 print(snews_message.keys())
-                                print(snews_message)
                                 add_time_tier_archive(session,
                                                       message_id=snews_message["id"],
                                                       message_uuid=snews_message["uuid"],
