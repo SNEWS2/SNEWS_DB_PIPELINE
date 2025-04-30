@@ -8,21 +8,21 @@ from datetime import datetime, timezone
 import adc.errors
 
 import click
-import numpy as np
-import pandas as pd
 from hop import Stream
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import Base, AllMessages
-from snews_db.db_operations import add_sig_tier_archive, add_time_tier_archive, add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive 
+from snews_db.db_operations import add_sig_tier_archive, add_time_tier_archive, \
+    add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive
 from snews.models.messages import Tier
-from dotenv import load_dotenv
-load_dotenv()
+
 
 class DBKafkaListener:
-    def __init__(self):
-        self.observation_topic = os.getenv("FIREDRILL_OBSERVATION_TOPIC")
+    def __init__(self, firedrill=False):
+        self.observation_topic = os.getenv(
+            "FIREDRILL_OBSERVATION_TOPIC" if firedrill else "OBSERVATION_TOPIC"
+        )
         self.database_url = os.getenv("DATABASE_URL")
         self.retriable_error_count = 0
 
@@ -165,6 +165,3 @@ class DBKafkaListener:
                     )
                     sys.exit(0)
 
-if __name__ == "__main__":
-    listener = DBKafkaListener()
-    listener.run_db_listener()
