@@ -8,21 +8,21 @@ from datetime import datetime, timezone
 import adc.errors
 
 import click
-import numpy as np
-import pandas as pd
 from hop import Stream
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import Base, AllMessages
-from snews_db.db_operations import add_sig_tier_archive, add_time_tier_archive, add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive 
+from snews_db.db_operations import add_sig_tier_archive, add_time_tier_archive, \
+    add_coincidence_tier_archive, add_cached_heartbeats, add_retraction_tier_archive
 from snews.models.messages import Tier
-from dotenv import load_dotenv
-load_dotenv()
+
 
 class DBKafkaListener:
-    def __init__(self):
-        self.observation_topic = os.getenv("FIREDRILL_OBSERVATION_TOPIC")
+    def __init__(self, firedrill=False):
+        self.observation_topic = os.getenv(
+            "FIREDRILL_OBSERVATION_TOPIC" if firedrill else "OBSERVATION_TOPIC"
+        )
         self.database_url = os.getenv("DATABASE_URL")
         self.retriable_error_count = 0
 
@@ -78,8 +78,6 @@ class DBKafkaListener:
                             message_tier = snews_message['tier']
                             received_time = str(datetime.now(timezone.utc))
                             if message_tier == Tier.COINCIDENCE_TIER:
-                                print("Adding coincidence archive")
-                                print(snews_message.keys())
                                 add_coincidence_tier_archive(session,
                                                              message_id=snews_message["id"],
                                                              message_uuid=snews_message["uuid"],
@@ -92,8 +90,6 @@ class DBKafkaListener:
                                                              is_firedrill=int(snews_message["is_firedrill"]))
 
                             elif message_tier == Tier.SIGNIFICANCE_TIER:
-                                print("Adding significance archive")
-                                print(snews_message.keys())
                                 add_sig_tier_archive(session,
                                                      message_id=snews_message["id"],
                                                      message_uuid=snews_message["uuid"],
@@ -107,8 +103,6 @@ class DBKafkaListener:
                                                      is_test=int(snews_message["is_test"]))
 
                             elif message_tier == Tier.HEART_BEAT:
-                                print("Adding heartbeat")
-                                print(snews_message.keys())
                                 add_cached_heartbeats(session,
                                                       message_id=snews_message["id"],
                                                       message_uuid=snews_message["uuid"],
@@ -119,8 +113,6 @@ class DBKafkaListener:
                                                       is_test=int(snews_message["is_test"]))
 
                             elif message_tier == Tier.RETRACTION:
-                                print("Adding retraction")
-                                print(snews_message.keys())
                                 add_retraction_tier_archive(session,
                                                             message_id=snews_message["id"],
                                                             message_uuid=snews_message["uuid"],
@@ -131,8 +123,6 @@ class DBKafkaListener:
                                                             is_test=int(snews_message["is_test"]))
 
                             elif message_tier == Tier.TIMING_TIER:
-                                print("Adding timing archive")
-                                print(snews_message.keys())
                                 add_time_tier_archive(session,
                                                       message_id=snews_message["id"],
                                                       message_uuid=snews_message["uuid"],
@@ -165,6 +155,3 @@ class DBKafkaListener:
                     )
                     sys.exit(0)
 
-if __name__ == "__main__":
-    listener = DBKafkaListener()
-    listener.run_db_listener()

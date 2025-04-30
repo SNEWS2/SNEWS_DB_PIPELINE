@@ -7,6 +7,9 @@ description = "A database for storing neutrino detector events."
 readme = "README.md"
 packages = [{include = "snews_db"}]
 
+[tool.poetry.scripts]
+snews_db = "snews_db.__main__:main"
+
 [tool.poetry.dependencies]
 python = ">=3.11, <3.13"
 hop-client = "^0.10.0"
