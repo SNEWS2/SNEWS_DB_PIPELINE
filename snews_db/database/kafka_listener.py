@@ -77,7 +77,6 @@ class DBKafkaListener:
                             # sort by different types of messages
                             message_tier = snews_message['tier']
                             received_time = str(datetime.now(timezone.utc))
-                            print(snews_message)
                             if message_tier == Tier.COINCIDENCE_TIER:
                                 print("Adding coincidence archive")
                                 print(snews_message.keys())

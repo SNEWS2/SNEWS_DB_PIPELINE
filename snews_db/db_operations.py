@@ -10,6 +10,7 @@ from .database.models import (
 )
 from datetime import datetime # Added import for type hinting if needed
 import logging # Added for logging potential errors
+from sqlalchemy.ext.declarative import DeclarativeMeta # Import for type hinting model class
 
 # Setup logger
 log = logging.getLogger(__name__)
@@ -210,3 +211,26 @@ def add_retraction_tier_archive(
     session.add(new_entry)
     session.commit()
     return new_entry
+
+# --- Generic Delete Operation ---
+def delete_all_from_table(session: Session, model_class: DeclarativeMeta):
+    """
+    Deletes all rows from the specified table model.
+
+    Args:
+        session: The SQLAlchemy session object.
+        model_class: The SQLAlchemy model class representing the table
+                     (e.g., AllMessages, CachedHeartbeats).
+
+    Returns:
+        The number of rows deleted.
+    """
+    try:
+        num_rows_deleted = session.query(model_class).delete()
+        session.commit()
+        log.info(f"Deleted {num_rows_deleted} rows from {model_class.__tablename__}")
+        return num_rows_deleted
+    except Exception as e:
+        session.rollback() # Rollback in case of error
+        log.error(f"Error deleting rows from {model_class.__tablename__}: {e}")
+        raise # Re-raise the exception after logging and rollback
