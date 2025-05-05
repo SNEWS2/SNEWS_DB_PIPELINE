@@ -32,7 +32,6 @@ class SigTierArchive(Base):
     received_time_utc = Column(DateTime)
     detector_name = Column(String)
     machine_time_utc = Column(String)
-    neutrino_time_utc = Column(String)
     p_val = Column(Float)
     p_values = Column(String)
     t_bin_width_sec = Column(Float)

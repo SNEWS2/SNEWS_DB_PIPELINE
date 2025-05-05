@@ -96,10 +96,9 @@ class DBKafkaListener:
                                                      received_time_utc=received_time,
                                                      detector_name=snews_message["detector_name"],
                                                      machine_time_utc=self.get_machine_time(snews_message),
-                                                     neutrino_time_utc=snews_message["neutrino_time_utc"],
                                                      p_val=self.get_p_val(snews_message),
                                                      p_values=snews_message["p_values"],
-                                                     t_bin_width_sec=float(snews_message["t_bin_width"]),
+                                                     t_bin_width_sec=float(snews_message["t_bin_width_sec"]),
                                                      is_test=int(snews_message["is_test"]))
 
                             elif message_tier == Tier.HEART_BEAT:

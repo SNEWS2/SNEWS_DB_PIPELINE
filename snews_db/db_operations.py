@@ -69,7 +69,6 @@ def add_sig_tier_archive(
     received_time_utc: datetime,
     detector_name: str,
     machine_time_utc: str | None, # Allow None based on schema/usage
-    neutrino_time_utc: str | None, # Allow None based on schema/usage
     p_val: float | None,
     p_values: str, # Assuming this is a JSON string or similar representation
     t_bin_width_sec: float | None,
@@ -78,7 +77,6 @@ def add_sig_tier_archive(
     """Adds a Significance Tier message archive entry."""
     # Example usage: Check date strings before creating the object
     check_valid_date(machine_time_utc, "machine_time_utc")
-    check_valid_date(neutrino_time_utc, "neutrino_time_utc")
 
     new_entry = SigTierArchive(
         message_id=message_id,
@@ -86,7 +84,6 @@ def add_sig_tier_archive(
         received_time_utc=received_time_utc, # Assumed to be a valid datetime object already
         detector_name=detector_name,
         machine_time_utc=machine_time_utc,
-        neutrino_time_utc=neutrino_time_utc,
         p_val=p_val,
         p_values=p_values,
         t_bin_width_sec=t_bin_width_sec,

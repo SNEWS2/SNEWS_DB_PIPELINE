@@ -12,6 +12,7 @@ from snews_db.db_operations import (
 from datetime import datetime, timezone
 
 DATABASE_URL = "postgresql://user:password@localhost:5433/snews_pg"
+
 @pytest.fixture(scope='module')
 def engine():
     return create_engine(DATABASE_URL)
@@ -62,10 +63,9 @@ def test_add_sig_tier_archive_full(session):
     """Test adding SigTierArchive with all fields."""
     now = datetime.now(timezone.utc)
     machine_time_str = "2023-01-01T00:00:05Z"
-    neutrino_time_str = "2023-01-01T00:00:00Z"
     entry = add_sig_tier_archive(
         session, "sig1", "uuid-sig1", now, "DetectorA", machine_time_str,
-        neutrino_time_str, 0.05, '{"val": 1}', 0.1, 0
+        0.05, '{"val": 1}', 0.1, 0
     )
     assert entry.id is not None
     assert entry.message_id == "sig1"
@@ -73,7 +73,6 @@ def test_add_sig_tier_archive_full(session):
     assert entry.received_time_utc.replace(tzinfo=timezone.utc) == now
     assert entry.detector_name == "DetectorA"
     assert entry.machine_time_utc == machine_time_str
-    assert entry.neutrino_time_utc == neutrino_time_str
     assert entry.p_val == 0.05
     assert entry.p_values == '{"val": 1}'
     assert entry.t_bin_width_sec == 0.1
@@ -82,7 +81,6 @@ def test_add_sig_tier_archive_full(session):
     db_entry = session.query(SigTierArchive).filter_by(message_id="sig1").first()
     assert db_entry is not None
     assert db_entry.machine_time_utc == machine_time_str
-    assert db_entry.neutrino_time_utc == neutrino_time_str
 
 def test_add_time_tier_archive_no_machine_time(session):
     """Test adding TimeTierArchive with null machine time."""
@@ -262,7 +260,7 @@ def test_add_sig_tier_archive_invalid_date(session):
     with pytest.raises(ValueError, match=r"Invalid isoformat string:.*'not-a-date'"):
         add_sig_tier_archive(
             session, "sig_invalid", "uuid-sig_invalid", now, "DetectorX", "not-a-date",
-            "2023-01-01T00:00:00Z", 0.05, '[]', 0.1, 0
+            0.05, '[]', 0.1, 0
         )
 
 def test_add_time_tier_archive_invalid_date(session):
