@@ -94,7 +94,7 @@ class CachedHeartbeats(Base):
     message_id = Column(String)
     message_uuid = Column(String)
     received_time_utc = Column(DateTime)
-    machine_time = Column(DateTime)
+    machine_time_utc = Column(DateTime)
     detector_name = Column(String)
     detector_status = Column(String)
     is_test = Column(Integer)

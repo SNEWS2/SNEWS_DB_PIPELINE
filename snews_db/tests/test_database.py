@@ -171,7 +171,7 @@ def test_add_cached_heartbeats_full(session):
     expected_dt = datetime.fromisoformat(machine_time_str_input.replace('Z', '+00:00'))
     # Assuming entry.machine_time is a naive datetime object representing UTC
     # Make it timezone-aware before comparing
-    actual_dt_aware = entry.machine_time.replace(tzinfo=timezone.utc)
+    actual_dt_aware = entry.machine_time_utc.replace(tzinfo=timezone.utc)
     # Compare the datetime objects
     assert actual_dt_aware == expected_dt
     # --- End Compare machine_time ---
@@ -188,7 +188,7 @@ def test_add_cached_heartbeats_full(session):
     expected_dt_db = datetime.fromisoformat(machine_time_str_input.replace('Z', '+00:00'))
     # Assuming db_entry.machine_time is a naive datetime object representing UTC
     # Make it timezone-aware before comparing
-    actual_dt_db_aware = db_entry.machine_time.replace(tzinfo=timezone.utc)
+    actual_dt_db_aware = db_entry.machine_time_utc.replace(tzinfo=timezone.utc)
     # Compare the datetime objects
     assert actual_dt_db_aware == expected_dt_db
 
@@ -202,14 +202,14 @@ def test_add_cached_heartbeats_no_machine_time(session):
     assert entry.message_id == "hb2"
     # Make naive datetime aware before comparing
     assert entry.received_time_utc.replace(tzinfo=timezone.utc) == now
-    assert entry.machine_time is None
+    assert entry.machine_time_utc is None
     assert entry.detector_status == "OFF"
 
     db_entry = session.query(CachedHeartbeats).filter_by(message_id="hb2").first()
     assert db_entry is not None
     # Make naive datetime aware before comparing
     assert db_entry.received_time_utc.replace(tzinfo=timezone.utc) == now
-    assert db_entry.machine_time is None
+    assert db_entry.machine_time_utc is None
 
 # --- RetractionTierArchive Tests ---
 

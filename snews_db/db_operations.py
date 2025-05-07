@@ -175,7 +175,7 @@ def add_cached_heartbeats(
         message_id=message_id,
         message_uuid=message_uuid,
         received_time_utc=received_time_utc, # Assumed to be a valid datetime object already
-        machine_time=machine_time_utc, # Pass the datetime object or None
+        machine_time_utc=machine_time_utc, # Pass the datetime object or None
         detector_name=detector_name,
         detector_status=detector_status,
         is_test=is_test,
