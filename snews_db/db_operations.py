@@ -11,6 +11,8 @@ from .database.models import (
 from datetime import datetime # Added import for type hinting if needed
 import logging # Added for logging potential errors
 from sqlalchemy.ext.declarative import DeclarativeMeta # Import for type hinting model class
+from snews.models.messages import Tier
+from datetime import datetime, timezone
 
 # Setup logger
 log = logging.getLogger(__name__)
@@ -231,3 +233,76 @@ def delete_all_from_table(session: Session, model_class: DeclarativeMeta):
         session.rollback() # Rollback in case of error
         log.error(f"Error deleting rows from {model_class.__tablename__}: {e}")
         raise # Re-raise the exception after logging and rollback
+
+# write arbitrary message to database
+def get_machine_time(snews_message):
+    if "machine_time" in snews_message.keys():
+        return snews_message["machine_time"]
+    elif "machine_time_utc" in snews_message.keys():
+        return snews_message["machine_time_utc"]
+    else:
+        raise Exception("No machine time key found in message")
+
+def get_p_val(snews_message):
+    if snews_message["p_val"] is not None:
+        return float(snews_message["p_val"])
+    else:
+        return None
+
+def write_arbitrary_message(session: Session, snews_message: dict):
+    message_tier = snews_message['tier']
+    received_time = str(datetime.now(timezone.utc))
+    if message_tier == Tier.COINCIDENCE_TIER:
+        add_coincidence_tier_archive(session,
+                                        message_id=snews_message["id"],
+                                        message_uuid=snews_message["uuid"],
+                                        received_time_utc=received_time,
+                                        detector_name=snews_message["detector_name"],
+                                        machine_time_utc=get_machine_time(snews_message),
+                                        neutrino_time_utc=snews_message["neutrino_time_utc"],
+                                        p_val=get_p_val(snews_message),
+                                        is_test=int(snews_message["is_test"]),
+                                        is_firedrill=int(snews_message["is_firedrill"]))
+
+    elif message_tier == Tier.SIGNIFICANCE_TIER:
+        add_sig_tier_archive(session,
+                                message_id=snews_message["id"],
+                                message_uuid=snews_message["uuid"],
+                                received_time_utc=received_time,
+                                detector_name=snews_message["detector_name"],
+                                machine_time_utc=get_machine_time(snews_message),
+                                p_val=get_p_val(snews_message),
+                                p_values=snews_message["p_values"],
+                                t_bin_width_sec=float(snews_message["t_bin_width_sec"]),
+                                is_test=int(snews_message["is_test"]))
+
+    elif message_tier == Tier.HEART_BEAT:
+        add_cached_heartbeats(session,
+                                message_id=snews_message["id"],
+                                message_uuid=snews_message["uuid"],
+                                received_time_utc=received_time,
+                                machine_time_utc=get_machine_time(snews_message),
+                                detector_name=snews_message['detector_name'],
+                                detector_status=snews_message['detector_status'],
+                                is_test=int(snews_message["is_test"]))
+
+    elif message_tier == Tier.RETRACTION:
+        add_retraction_tier_archive(session,
+                                    message_id=snews_message["id"],
+                                    message_uuid=snews_message["uuid"],
+                                    received_time_utc=received_time,
+                                    detector_name=snews_message["detector_name"],
+                                    machine_time_utc=get_machine_time(snews_message),
+                                    detector_status=snews_message["detector_status"],
+                                    is_test=int(snews_message["is_test"]))
+
+    elif message_tier == Tier.TIMING_TIER:
+        add_time_tier_archive(session,
+                                message_id=snews_message["id"],
+                                message_uuid=snews_message["uuid"],
+                                received_time_utc=received_time,
+                                detector_name=snews_message["detector_name"],
+                                machine_time_utc=get_machine_time(snews_message),
+                                neutrino_time_utc=snews_message["neutrino_time_utc"],
+                                timing_series=str(snews_message["timing_series"]),
+                                is_test=int(snews_message["is_test"]))

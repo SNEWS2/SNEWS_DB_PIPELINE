@@ -5,11 +5,9 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from snews_db.database.models import (
-    Base, AllMessages, CoincidenceTierArchive, TimeTierArchive,
+    Base, CoincidenceTierArchive, TimeTierArchive,
     SigTierArchive, CachedHeartbeats
 )
-from datetime import datetime, timezone
-import os
 
 DATABASE_URL = "postgresql://user:password@localhost:5433/snews_pg"
 SNEWS_DB_ROOT = Path(__file__).parent.parent.parent
