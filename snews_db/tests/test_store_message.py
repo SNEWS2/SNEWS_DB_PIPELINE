@@ -20,6 +20,23 @@ def session_factory(engine):
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal
 
+@pytest.fixture(scope='module')
+def tables(engine):
+    Base.metadata.create_all(engine)
+    yield
+    Base.metadata.drop_all(engine)
+
+@pytest.fixture(autouse=True)
+def clean_tables(session_factory):
+    """Clean all tables before each test"""
+    session = session_factory()
+    try:
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
+    finally:
+        session.close()
+
 def run_store_command(message_filename):
     message_path = SNEWS_DB_ROOT / "snews_db/tests/example_messages" / message_filename
     print(f"\nAttempting to store message from: {message_path}")
@@ -36,7 +53,7 @@ def run_store_command(message_filename):
         print("STDERR:", result.stderr)
     result.check_returncode()
 
-def test_store_heartbeat_message(session_factory):
+def test_store_heartbeat_message(session_factory, tables):
     """Test storing a heartbeat message"""
     run_store_command("example_heartbeat_message.json")
     session = session_factory()
@@ -50,7 +67,7 @@ def test_store_heartbeat_message(session_factory):
     finally:
         session.close()
 
-def test_store_significance_message(session_factory):
+def test_store_significance_message(session_factory, tables):
     """Test storing a significance tier message"""
     run_store_command("example_significance_tier_message.json")
     session = session_factory()
@@ -64,7 +81,7 @@ def test_store_significance_message(session_factory):
     finally:
         session.close()
 
-def test_store_timing_message(session_factory):
+def test_store_timing_message(session_factory, tables):
     """Test storing a timing tier message"""
     run_store_command("example_timing_tier_message.json")
     session = session_factory()
@@ -77,7 +94,7 @@ def test_store_timing_message(session_factory):
     finally:
         session.close()
 
-def test_store_coincidence_message(session_factory):
+def test_store_coincidence_message(session_factory, tables):
     """Test storing a coincidence tier message"""
     run_store_command("example_coincidence_tier_message.json")
     session = session_factory()
@@ -91,7 +108,7 @@ def test_store_coincidence_message(session_factory):
     finally:
         session.close()
 
-def test_store_combined_message(session_factory):
+def test_store_combined_message(session_factory, tables):
     """Test storing a combined message with multiple tiers"""
     run_store_command("example_combined_message.json")
     session = session_factory()
