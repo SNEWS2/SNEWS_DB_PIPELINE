@@ -3,8 +3,11 @@ name: Firedrill Workflow
 on:
   push:
     branches:
+      - main
       - test-framework
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:

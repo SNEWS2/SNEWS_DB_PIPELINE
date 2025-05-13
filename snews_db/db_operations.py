@@ -243,6 +243,16 @@ def get_machine_time(snews_message):
     else:
         raise Exception("No machine time key found in message")
 
+def get_neutrino_time_utc(snews_message):
+    if "neutrino_time_utc" in snews_message.keys():
+        return snews_message["neutrino_time_utc"]
+    elif "neutrino_time" in snews_message.keys():
+        return snews_message["neutrino_time_utc"]
+    elif "sent_time_utc" in snews_message.keys():
+        return snews_message["sent_time_utc"]
+    else:
+        raise Exception("No neutrino time key found in message")
+
 def get_p_val(snews_message):
     if snews_message["p_val"] is not None:
         return float(snews_message["p_val"])
@@ -303,6 +313,6 @@ def write_arbitrary_message(session: Session, snews_message: dict):
                                 received_time_utc=received_time,
                                 detector_name=snews_message["detector_name"],
                                 machine_time_utc=get_machine_time(snews_message),
-                                neutrino_time_utc=snews_message["neutrino_time_utc"],
+                                neutrino_time_utc= get_neutrino_time_utc(snews_message), # snews_message["neutrino_time_utc"],
                                 timing_series=str(snews_message["timing_series"]),
                                 is_test=int(snews_message["is_test"]))
