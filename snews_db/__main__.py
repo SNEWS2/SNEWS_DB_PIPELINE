@@ -5,7 +5,6 @@ from datetime import datetime
 import click
 from snews_db.utils import db_utils
 from snews_db.database.models import Base
-from snews_db.database import engine, SessionLocal
 from snews_db.db_operations import write_arbitrary_message
 from snews import messages
 
@@ -61,16 +60,16 @@ def store_message(json_file):
         # Read and parse JSON file
         with open(json_file, 'r') as f:
             message_data = json.load(f)
-        
+
         # Create messages using snews library
         snews_messages = messages.create_messages(**message_data)
-        
+
         # Create database session and tables
         db = SessionLocal()
         try:
             # Create all tables if they don't exist
             Base.metadata.create_all(bind=engine)
-            
+
             # Write each message to the database
             for message in snews_messages:
                 # Convert message to dict format expected by write_arbitrary_message
