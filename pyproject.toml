@@ -22,7 +22,7 @@ psycopg2-binary = "^2.9"  # PostgreSQL adapter
 confluent-kafka = "^2.3" # Kafka client
 
 [tool.poetry.group.dev.dependencies]
-snews-pt = "^1.0.0"
+snews-pt = "^2.0.0"
 autopep8 = "^2.0.4"
 flake8 = "^6.1.0"
 pytest = "<6.3.0"  # Constrained by snews_pt
